@@ -1,4 +1,4 @@
-# 🐒 Primate Lead Pipeline
+# Primate Lead Pipeline
 
 A full lead enrichment pipeline that:
 1. **Fetches** real companies from the YC directory (W25, S24, W24, etc.)
@@ -7,39 +7,52 @@ A full lead enrichment pipeline that:
 4. **Writes** a personalized cold email opener per founder
 5. **Exports** everything to a `.xlsx` spreadsheet
 
-100% free — no API keys, runs locally.
+Runs locally as a FastAPI backend. There is intentionally no frontend right now.
 
 ## Requirements
 
-- [Node.js](https://nodejs.org) v18+
-- [Ollama](https://ollama.com) with `llama3` pulled
+- Python 3.10+
+- Ollama with `llama3` pulled
 
 ## Setup
 
 ```bash
-# 1. Install dependencies
-npm install
+# 1. Create and activate a virtualenv
+python3 -m venv .venv
+source .venv/bin/activate
 
-# 2. Copy env file (no edits needed unless you change ports)
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Copy env file (no edits needed unless you change ports)
 cp .env.example .env
 
-# 3. Make sure Ollama is running
+# 4. Make sure Ollama is running
 ollama serve   # (skip if already running)
 
-# 4. Start the pipeline server
-npm start
+# 5. Start the pipeline server
+python app.py
 ```
 
-Open **http://localhost:3001**
+API root: **http://localhost:3001**
 
 ## Usage
 
-1. Select which YC batches to scan (W25, S24, W24, etc.)
-2. Set max companies to process (start with 10–15)
-3. Pick your Ollama model (`llama3` recommended)
-4. Click **Run Pipeline**
-5. Watch leads appear in real-time as they're processed
-6. Click **Download Spreadsheet** when done
+Run the pipeline over Server-Sent Events:
+
+```bash
+curl -N "http://localhost:3001/api/pipeline?sources=yc,github&batches=W25,S24,W24&max=15&model=llama3"
+```
+
+Useful endpoints:
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /api/pipeline` | Runs the lead pipeline and streams progress |
+| `GET /api/status` | Checks Ollama availability and installed models |
+| `GET /api/seen` | Returns the seen-company count |
+| `POST /api/seen/reset` | Clears seen-company history |
+| `GET /download/leads` | Downloads the latest spreadsheet |
 
 ## Spreadsheet columns
 
@@ -47,7 +60,8 @@ Open **http://localhost:3001**
 |---|---|
 | Founder Name | Full name scraped from YC page |
 | Title | Co-Founder / CTO etc. |
-| Email | Guessed from name + domain |
+| Email | Found or guessed from name + domain |
+| Email Status | found / guessed / unavailable |
 | LinkedIn | Profile URL if available |
 | Company | Company name |
 | Website | Company URL |
@@ -63,4 +77,4 @@ Open **http://localhost:3001**
 - Process 10–15 companies at a time for best results
 - `llama3` or `mistral` give best output quality
 - Each company takes ~20–40s (scraping + Ollama generation)
-- Emails are guessed (firstname.lastname@domain) — verify before sending
+- Emails are guessed unless a source provides one. Add a verification provider before sending at scale.
