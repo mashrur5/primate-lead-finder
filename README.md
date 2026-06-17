@@ -31,7 +31,7 @@ cp .env.example .env
 ollama serve   # (skip if already running)
 
 # 5. Start the pipeline server
-python app.py
+python src/app.py
 ```
 
 API root: **http://localhost:3001**

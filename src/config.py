@@ -2,7 +2,8 @@ import os
 from pathlib import Path
 
 
-BASE_DIR = Path(__file__).resolve().parent
+SRC_DIR = Path(__file__).resolve().parent
+BASE_DIR = SRC_DIR.parent
 
 
 def load_env_file(path=BASE_DIR / ".env"):
@@ -24,5 +25,6 @@ PORT = int(os.getenv("PORT", "3001"))
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
+HUNTER_API_KEY = os.getenv("HUNTER_API_KEY", "")
 SEEN_FILE = BASE_DIR / "seen_companies.json"
 EXPORT_FILE = BASE_DIR / "primate_leads.xlsx"
